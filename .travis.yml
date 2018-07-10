@@ -1,0 +1,16 @@
+language: go
+
+before_install:
+
+script:
+
+  - go fmt .
+  - go vet .
+  - go test -v  ./...
+
+
+go:
+  - 1.8.x
+  - 1.9.x
+  - 1.10.x
+  - tip

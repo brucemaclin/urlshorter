@@ -13,7 +13,13 @@ type shortInfo struct {
 
 var inner shortInfo
 
+//InitWithDB use user's db add update dbFlag
 func InitWithDB(db DB) {
+	val := atomic.LoadInt32(&inner.dbFlag)
+	//already init
+	if val == 1 {
+		return
+	}
 	inner.db = db
 	atomic.AddInt32(&inner.dbFlag, 1)
 	return

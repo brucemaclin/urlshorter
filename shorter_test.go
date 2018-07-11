@@ -60,6 +60,11 @@ func TestGetID(t *testing.T) {
 	}
 
 }
+func BenchmarkShorterURLGene(b *testing.B) {
+	for i := uint64(0); i < uint64(b.N); i++ {
+		ShorterURLGene(i)
+	}
+}
 func initDB() {
 	db := getDefaultDB()
 	InitWithDB(db)

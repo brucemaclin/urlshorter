@@ -45,28 +45,28 @@ func convert10To62(num uint64)string {
 	return string(res)
 
 }
-const mayOverFlow = (math.MaxUint64/62)*62
+const mayOverFlow = (math.MaxUint64/62)+1
 func convert62To10(str string) (uint64,error) {
 	slice := []rune(str)
 	var needReturn uint64
-	var overflow uint64
-	for j:=len(slice)-1;j>=0;j-- {
+
+	for j:=0;j<len(slice);j++ {
 		index,ok := revDecimalMap[slice[j]]
 		if !ok {
 			return 0,errors.New("can't convert invalid data with "+str)
 		}
-		if  overflow == 0 {
-			needReturn += index
-			overflow = 62
-		} else {
-			if overflow ==  mayOverFlow {
-				return 0,errors.New("may overflow with "+str)
-			}
-			needReturn += index * overflow
-			overflow *= 62
+		if needReturn >= mayOverFlow {
+			return 0, errors.New("may overflow")
 		}
+		needReturn *= 62
+		n1 := needReturn+index
+		if n1 < needReturn || n1 > math.MaxUint64 {
+			return 0, errors.New("may overflow")
+		}
+		needReturn = n1
 
 	}
+
 	return needReturn,nil
 }
 

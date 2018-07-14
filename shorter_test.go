@@ -1,6 +1,7 @@
 package shorter
 
 import (
+	"fmt"
 	"math"
 	"strings"
 	"testing"
@@ -132,5 +133,60 @@ func TestShorterURLGene(t *testing.T) {
 			return
 		}
 
+	}
+}
+
+func TestMulShorterURLs(t *testing.T) {
+	shortURLs, err := MulShorterURLs(validOrigURL)
+	if err != nil {
+		t.Error("fal to mul shorter urls:", err)
+		return
+	}
+	for i, short := range shortURLs {
+		origURL, err := GetOrigURLByShortURL(short)
+		if err != nil {
+			t.Error("fail to get orig by short:", err, short, origURL)
+			return
+		}
+		if origURL != validOrigURL[i] {
+			t.Error("get orig not equal:", err)
+			return
+		}
+	}
+}
+
+func TestMulShorterURLsGene(t *testing.T) {
+	var id []uint64
+	for i := uint64(0); i < 100; i++ {
+		id = append(id, i)
+	}
+	for i := uint64(math.MaxUint64 - 100); i != 0 && i <= math.MaxUint64; i++ {
+		id = append(id, i)
+	}
+	fmt.Println("gene id finish：", len(id))
+	shortURLs := MulShorterURLsGene(id)
+	for i := uint64(0); i < 100; i++ {
+		origID, err := GetID(shortURLs[i])
+		if err != nil {
+			t.Error("fail to get id:", shortURLs[i])
+			return
+		}
+
+		if origID != i {
+			t.Error("not equal:", origID, i)
+			return
+		}
+	}
+	for i := 100; i < len(id); i++ {
+		origID, err := GetID(shortURLs[i])
+		if err != nil {
+			t.Error("fail get id:", shortURLs[i])
+			return
+		}
+
+		if origID != id[i] {
+			t.Error("not equal:", origID, id[i])
+			return
+		}
 	}
 }

@@ -46,22 +46,38 @@ func ShorterURL(origURL string) (string, error) {
 	if val == 0 {
 		return "", errors.New("db not init")
 	}
-	id, err := inner.db.GetNextID()
-	if err != nil {
-		return "", err
-	}
-	short := convert10To62(id)
-	err = inner.db.Add(id, short, origURL)
+
+	short, err := inner.db.Add(origURL)
 	if err != nil {
 		return "", err
 	}
 	return short, err
 }
 
+//MulShorterURLs use after InitWithDB
+//db save mul origURLs info and return shortURLs
+func MulShorterURLs(origURLs []string) ([]string, error) {
+	val := atomic.LoadInt32(&inner.dbFlag)
+	if val == 0 {
+		return nil, errors.New("db not init")
+	}
+	shortURLS, err := inner.db.MulAdd(origURLs)
+	return shortURLS, err
+}
+
 //ShorterURLGene only gene a shorter url with id
 //use 62 decimal
 func ShorterURLGene(id uint64) string {
 	return convert10To62(id)
+}
+
+//MulShorterURLsGene gene short URLs with ids
+func MulShorterURLsGene(ids []uint64) []string {
+	var res []string
+	for _, id := range ids {
+		res = append(res, convert10To62(id))
+	}
+	return res
 }
 
 //GetID return 10 decimal id if shortURL valid

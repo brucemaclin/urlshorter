@@ -10,7 +10,7 @@ import (
 type DB interface {
 
 	//Add save shorturl and origurl with the origID
-	Add(origID uint64, shortURL string, origURL string) error
+	Add(origURL string) (string, error)
 
 	//GetOrigURLByShort get orig url will query sql by  shorturl
 	GetOrigURLByShort(shortURL string) (origURL string, err error)
@@ -22,6 +22,9 @@ type DB interface {
 	//to avoid cocurrent access problems.
 	//can return iteself if not a problem
 	Clone() DB
+
+	//MulAdd add origURLs save in db and return shortURLs
+	MulAdd(origURLs []string) ([]string, error)
 }
 
 //DefaultDB will use memory to store infos of shortURL
@@ -50,13 +53,16 @@ func (db *DefaultDB) Clone() DB {
 }
 
 //Add save url info in map
-func (db *DefaultDB) Add(origID uint64, shortURL string, origURL string) error {
+func (db *DefaultDB) Add(origURL string) (string, error) {
 	db.Lock()
 	defer db.Unlock()
+	origID := db.nextID
+	db.nextID++
+	shortURL := convert10To62(origID)
 	var info = urlInfo{origURL: origURL, id: origID, createTime: time.Now(), shortURL: shortURL}
 	db.shortURLMap[shortURL] = info
 	db.origURLMap[origURL] = info
-	return nil
+	return shortURL, nil
 }
 
 //GetNextID return nextid and incr nextid
@@ -87,4 +93,26 @@ func (db *DefaultDB) checkIfExistShortURL(origURL string) (string, bool) {
 		return "", ok
 	}
 	return info.shortURL, ok
+}
+
+func (db *DefaultDB) MulAdd(origURLs []string) ([]string, error) {
+	if len(origURLs) == 0 {
+		return nil, errors.New("no orig url")
+	}
+	db.Lock()
+	defer db.Unlock()
+	var res []string
+	start := db.nextID
+	end := db.nextID + uint64(len(origURLs))
+	if end < start {
+		return nil, errors.New("id overflow")
+	}
+	for i := start; i < end; i++ {
+		shortURL := convert10To62(i)
+		res = append(res, shortURL)
+		var info = urlInfo{origURL: origURLs[i-start], id: start, createTime: time.Now(), shortURL: shortURL}
+		db.shortURLMap[shortURL] = info
+		db.origURLMap[origURLs[i-start]] = info
+	}
+	return res, nil
 }

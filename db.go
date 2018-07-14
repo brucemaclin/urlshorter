@@ -27,7 +27,7 @@ type DB interface {
 	MulAdd(origURLs []string) ([]string, error)
 }
 
-//DefaultDB will use memory to store infos of shortURL
+//*DefaultDB will use memory to store infos of shortURL
 type DefaultDB struct {
 	sync.RWMutex
 	nextID      uint64

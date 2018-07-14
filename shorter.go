@@ -2,7 +2,6 @@ package shorter
 
 import (
 	"errors"
-	"net/url"
 	"sync/atomic"
 )
 
@@ -27,21 +26,14 @@ func InitWithDB(db DB) {
 
 //ShorterURL can use after InitWithDB
 //it will GetNextID and then use db to save infos
-//of url.
+//of url. need caller to judge whether url is valid
 //ret: shortURL and error if db not init or error occurs when use db
 func ShorterURL(origURL string) (string, error) {
 	if origURL == "" {
 		return "", errors.New("origURL should not be blank")
 	}
 
-	uri, err := url.Parse(origURL)
-	if err != nil {
-		return "", err
-	}
-
-	if uri.Host == "" {
-		return "", errors.New("uri has no host")
-	}
+	//fmt.Printf("%v %v\n", uri.Host, uri.Path)
 	val := atomic.LoadInt32(&inner.dbFlag)
 	if val == 0 {
 		return "", errors.New("db not init")

@@ -29,13 +29,6 @@ var validOrigURL = []string{
 	"https://abc.xyz",
 	"http://127.0.0.1",
 }
-var invalidOrigURL = []string{
-	" /main.html",
-	" http:www.example.com/main.html",
-	" www.example.com/main.html",
-	"hlo://\\",
-	"google.com/xxx&111",
-}
 
 func getDefaultDB() *DefaultDB {
 	db := DefaultDB{}
@@ -50,14 +43,6 @@ func TestGetID(t *testing.T) {
 			t.Error("get id failed:", err)
 			return
 		}
-	}
-	for _, invalid := range invalidShortURL {
-		id, err := GetID(invalid)
-		if err == nil {
-			t.Error("should fail of invalid short URL:", invalid, id)
-			return
-		}
-
 	}
 
 }
@@ -98,13 +83,7 @@ func TestGetOrigURLByShortURL(t *testing.T) {
 			return
 		}
 	}
-	for _, origURL := range invalidOrigURL {
-		short, err := ShorterURL(origURL)
-		if err == nil {
 
-			t.Error("should return err:", origURL, short)
-		}
-	}
 }
 
 func TestShorterURLGene(t *testing.T) {

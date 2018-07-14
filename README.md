@@ -40,6 +40,6 @@ example:
 
 if use with db,you should implement th urlshort.DB interface.
 
-see DefaultDB in [db.go](db.go) .
+see *DefaultDB in [db.go](db.go) .
 
 you can use mysql/redis/mongo as your wish.

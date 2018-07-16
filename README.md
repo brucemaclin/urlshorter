@@ -38,8 +38,17 @@ example:
 ```
 
 
-if use with db,you should implement th urlshort.DB interface.
+if use with db,you should implement the urlshorter.DB interface.
 
-see *DefaultDB in [db.go](db.go) .
+see DefaultDB in [db.go](db.go) .
 
 you can use mysql/redis/mongo as your wish.
+
+you can try with demo.
+
+```
+    go run demo.go
+```
+
+then you can type http://127.0.0.1:8080/?url=www.google.com,it will return
+a shorter url.

@@ -2,14 +2,15 @@ package shorter
 
 import (
 	"errors"
+	"math/rand"
 	"sync"
 	"time"
 )
 
-//DB db func to handle shorturl info
+//DB db func to handle shortURL info
 type DB interface {
 
-	//Add save shorturl and origurl with the origID
+	//Add save shortURL and origURL with the origID
 	Add(origURL string) (string, error)
 
 	//GetOrigURLByShort get orig url will query sql by  shorturl
@@ -20,7 +21,7 @@ type DB interface {
 	GetNextID() (uint64, error)
 	//Clone the storage if needed.For example,using mgo,you can clone the session with session.Clone
 	//to avoid cocurrent access problems.
-	//can return iteself if not a problem
+	//can return it self if not a problem
 	Clone() DB
 
 	//MulAdd add origURLs save in db and return shortURLs
@@ -45,6 +46,7 @@ type urlInfo struct {
 func (db *DefaultDB) Init() {
 	db.shortURLMap = make(map[string]urlInfo)
 	db.origURLMap = make(map[string]urlInfo)
+	db.nextID += 100 + uint64(rand.Int63n(1000))
 }
 
 //Clone return db self
@@ -65,7 +67,7 @@ func (db *DefaultDB) Add(origURL string) (string, error) {
 	return shortURL, nil
 }
 
-//GetNextID return nextid and incr nextid
+//GetNextID return nextID and increment nextID
 func (db *DefaultDB) GetNextID() (uint64, error) {
 	db.Lock()
 	defer db.Unlock()
@@ -74,7 +76,7 @@ func (db *DefaultDB) GetNextID() (uint64, error) {
 	return res, nil
 }
 
-//GetOrigURLByShort return origurl by query map with short url
+//GetOrigURLByShort return origURL by query map with short url
 func (db *DefaultDB) GetOrigURLByShort(shortURL string) (string, error) {
 	db.RLock()
 	defer db.RUnlock()
